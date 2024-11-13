@@ -12,27 +12,27 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            background-color: #f4f4f4;
         }
         .header {
+            background-color: black;
+            color: white;
+            padding: 10px;
             display: flex;
             align-items: center;
-            padding: 10px;
-            background-color: #f4f4f4;
-            border-bottom: 1px solid #ccc;
         }
         .profile {
             display: flex;
             align-items: center;
         }
         .profile img {
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             margin-right: 10px;
         }
-        .profile span {
+        .profile-name {
             font-size: 20px;
-            font-weight: bold;
         }
         .page {
             flex: 1;
@@ -45,7 +45,7 @@
         .button-bar {
             display: flex;
             justify-content: space-around;
-            background-color: #ddd;
+            background-color: black;
             padding: 10px;
         }
         .button-bar button {
@@ -53,6 +53,7 @@
             border: none;
             padding: 10px;
             cursor: pointer;
+            filter: drop-shadow(0 0 5px white);
         }
         .button-bar button img {
             width: 40px;
@@ -65,8 +66,8 @@
     <!-- Header with profile info -->
     <div class="header">
         <div class="profile">
-            <img id="profilePic" src="" alt="Profile Picture">
-            <span id="userName">User Name</span>
+            <img src="https://via.placeholder.com/50" id="user-photo" alt="User Photo">
+            <span class="profile-name" id="user-name">User Name</span>
         </div>
     </div>
 
@@ -105,6 +106,14 @@
     </div>
 
     <script>
+        // This script should be integrated with Telegram's Web Apps API to show real user data
+        window.Telegram.WebApp.ready();
+        const user = window.Telegram.WebApp.initDataUnsafe.user;
+        if (user) {
+            document.getElementById('user-photo').src = user.photo_url;
+            document.getElementById('user-name').textContent = user.first_name;
+        }
+
         function showPage(pageId) {
             const pages = document.querySelectorAll('.page');
             pages.forEach(page => {
@@ -112,17 +121,6 @@
             });
             document.getElementById(pageId).classList.add('active');
         }
-
-        // Simulated Telegram WebApp user data
-        window.onload = function() {
-            const telegramUser = {
-                photoUrl: 'https://via.placeholder.com/40', // Replace with actual Telegram photo URL
-                firstName: 'John Doe' // Replace with actual Telegram name
-            };
-
-            document.getElementById('profilePic').src = telegramUser.photoUrl;
-            document.getElementById('userName').textContent = telegramUser.firstName;
-        };
     </script>
 
 </body>
