@@ -16,17 +16,21 @@
         .header {
             display: flex;
             align-items: center;
-            background-color: #f4f4f4;
             padding: 10px;
+            background-color: #f4f4f4;
             border-bottom: 1px solid #ccc;
         }
-        .profile-img {
-            width: 50px;
-            height: 50px;
+        .profile {
+            display: flex;
+            align-items: center;
+        }
+        .profile img {
             border-radius: 50%;
+            width: 40px;
+            height: 40px;
             margin-right: 10px;
         }
-        .username {
+        .profile span {
             font-size: 20px;
             font-weight: bold;
         }
@@ -58,16 +62,19 @@
 </head>
 <body>
 
-    <!-- Home Page with Profile Section -->
-    <div id="home" class="page active">
-        <div class="header">
-            <img src="https://via.placeholder.com/50" alt="Profile" class="profile-img" id="profile-img">
-            <span class="username" id="username">User Name</span>
+    <!-- Header with profile info -->
+    <div class="header">
+        <div class="profile">
+            <img id="profilePic" src="" alt="Profile Picture">
+            <span id="userName">User Name</span>
         </div>
+    </div>
+
+    <!-- Pages -->
+    <div id="home" class="page active">
         <h2>Home Page</h2>
         <p>Welcome to the game! This is the home page.</p>
     </div>
-
     <div id="leaderboard" class="page">
         <h2>Leaderboard Page</h2>
         <p>Check out the top players on the leaderboard.</p>
@@ -106,15 +113,16 @@
             document.getElementById(pageId).classList.add('active');
         }
 
-        // Simulate fetching data from Telegram
-        document.addEventListener("DOMContentLoaded", () => {
-            const profileImg = document.getElementById("profile-img");
-            const username = document.getElementById("username");
+        // Simulated Telegram WebApp user data
+        window.onload = function() {
+            const telegramUser = {
+                photoUrl: 'https://via.placeholder.com/40', // Replace with actual Telegram photo URL
+                firstName: 'John Doe' // Replace with actual Telegram name
+            };
 
-            // Replace with actual data fetching logic from Telegram
-            profileImg.src = "https://telegram-user-profile-image-url"; // Replace with real image URL
-            username.textContent = "Telegram User Name"; // Replace with real username
-        });
+            document.getElementById('profilePic').src = telegramUser.photoUrl;
+            document.getElementById('userName').textContent = telegramUser.firstName;
+        };
     </script>
 
 </body>
