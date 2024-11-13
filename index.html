@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram User Info</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <h1>Telegram User Information</h1>
+    <div id="user-info">
+        <p id="name">Name: </p>
+        <p id="username">Username: </p>
+        <p id="chat-id">Chat ID: </p>
+        <p id="premium">Telegram Premium: </p>
+    </div>
+
+    <script>
+        window.Telegram.WebApp.ready();
+        const user = window.Telegram.WebApp.initDataUnsafe.user;
+        if (user) {
+            document.getElementById('name').innerText = `Name: ${user.first_name} ${user.last_name || ''}`;
+            document.getElementById('username').innerText = `Username: @${user.username || 'N/A'}`;
+            document.getElementById('chat-id').innerText = `Chat ID: ${user.id}`;
+            document.getElementById('premium').innerText = `Telegram Premium: ${user.is_premium ? 'Yes' : 'No'}`;
+        } else {
+            document.getElementById('user-info').innerText = 'User information not available.';
+        }
+    </script>
+</body>
+</html>
