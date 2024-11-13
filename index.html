@@ -2,31 +2,120 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram User Info</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Button Bar Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .username {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .page {
+            flex: 1;
+            display: none;
+            padding: 20px;
+        }
+        .page.active {
+            display: block;
+        }
+        .button-bar {
+            display: flex;
+            justify-content: space-around;
+            background-color: #ddd;
+            padding: 10px;
+        }
+        .button-bar button {
+            background-color: transparent;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .button-bar button img {
+            width: 40px;
+            height: 40px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Telegram User Information</h1>
-    <div id="user-info">
-        <p id="name">Name: </p>
-        <p id="username">Username: </p>
-        <p id="chat-id">Chat ID: </p>
-        <p id="premium">Telegram Premium: </p>
+
+    <!-- Home Page with Profile Section -->
+    <div id="home" class="page active">
+        <div class="header">
+            <img src="https://via.placeholder.com/50" alt="Profile" class="profile-img" id="profile-img">
+            <span class="username" id="username">User Name</span>
+        </div>
+        <h2>Home Page</h2>
+        <p>Welcome to the game! This is the home page.</p>
+    </div>
+
+    <div id="leaderboard" class="page">
+        <h2>Leaderboard Page</h2>
+        <p>Check out the top players on the leaderboard.</p>
+    </div>
+    <div id="mine" class="page">
+        <h2>Mine Page</h2>
+        <p>Mine for resources and earn rewards!</p>
+    </div>
+    <div id="airdrop" class="page">
+        <h2>Airdrop Page</h2>
+        <p>Participate in airdrops and claim your prizes.</p>
+    </div>
+
+    <!-- Button Bar -->
+    <div class="button-bar">
+        <button onclick="showPage('home')">
+            <img src="https://i.postimg.cc/1Xm48fCm/download-3-removebg-preview.png" alt="Home">
+        </button>
+        <button onclick="showPage('leaderboard')">
+            <img src="https://i.postimg.cc/RCgwcBcs/images-1-removebg-preview.png" alt="Leaderboard">
+        </button>
+        <button onclick="showPage('mine')">
+            <img src="https://i.postimg.cc/jdrYQptf/download-4-removebg-preview.png" alt="Mine">
+        </button>
+        <button onclick="showPage('airdrop')">
+            <img src="https://i.postimg.cc/Vvxr8B9z/images-9-removebg-preview.png" alt="Airdrop">
+        </button>
     </div>
 
     <script>
-        window.Telegram.WebApp.ready();
-        const user = window.Telegram.WebApp.initDataUnsafe.user;
-        if (user) {
-            document.getElementById('name').innerText = `Name: ${user.first_name} ${user.last_name || ''}`;
-            document.getElementById('username').innerText = `Username: @${user.username || 'N/A'}`;
-            document.getElementById('chat-id').innerText = `Chat ID: ${user.id}`;
-            document.getElementById('premium').innerText = `Telegram Premium: ${user.is_premium ? 'Yes' : 'No'}`;
-        } else {
-            document.getElementById('user-info').innerText = 'User information not available.';
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
         }
+
+        // Simulate fetching data from Telegram
+        document.addEventListener("DOMContentLoaded", () => {
+            const profileImg = document.getElementById("profile-img");
+            const username = document.getElementById("username");
+
+            // Replace with actual data fetching logic from Telegram
+            profileImg.src = "https://telegram-user-profile-image-url"; // Replace with real image URL
+            username.textContent = "Telegram User Name"; // Replace with real username
+        });
     </script>
+
 </body>
 </html>
