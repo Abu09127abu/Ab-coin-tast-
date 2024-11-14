@@ -2,89 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AB Coin Task Game</title>
+    <title>Telegram User Info</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .task-item { display: flex; align-items: center; margin: 20px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        .task-logo { width: 50px; height: 50px; margin-right: 15px; }
-        .task-name { flex-grow: 1; font-size: 1.2em; }
-        .task-button { padding: 5px 10px; margin-left: 10px; }
-        .counter { font-size: 1.5em; margin-bottom: 20px; }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .profile-container {
+            text-align: center;
+        }
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
-    <div class="counter">AB Coin: <span id="coin-counter">0</span></div>
-    <div id="task-list"></div>
+    <div class="profile-container">
+        <img id="profilePic" class="profile-pic" src="" alt="User Profile Picture">
+        <h2 id="userName"></h2>
+    </div>
 
     <script>
-        // Task data
-        const tasks = [
-            { id: 1, logo: 'task1.png', name: 'Join Telegram Channel', type: 'telegram', url: 'https://t.me/ABcoinairdrop' },
-            { id: 2, logo: 'task2.png', name: 'Watch YouTube Video', type: 'youtube', url: 'https://youtube.com/example_video' }
-        ];
-
-        // Load AB Coin count from local storage
-        let coinCount = localStorage.getItem('abCoin') ? parseInt(localStorage.getItem('abCoin')) : 0;
-        document.getElementById('coin-counter').innerText = coinCount;
-
-        // Function to render tasks
-        function renderTasks() {
-            const taskList = document.getElementById('task-list');
-            tasks.forEach(task => {
-                const taskDiv = document.createElement('div');
-                taskDiv.className = 'task-item';
-                taskDiv.innerHTML = `
-                    <img src="${task.logo}" alt="Task Logo" class="task-logo">
-                    <div class="task-name">${task.name}</div>
-                    <button class="task-button" onclick="startTask(${task.id})" id="start-btn-${task.id}">Start</button>
-                `;
-                taskList.appendChild(taskDiv);
-            });
-        }
-
-        // Start task function
-        function startTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (!task) return;
-            window.open(task.url, '_blank');
-            const startButton = document.getElementById(`start-btn-${taskId}`);
-            startButton.textContent = 'Check';
-            startButton.onclick = () => checkTask(task);
-        }
-
-        // Check task function
-        function checkTask(task) {
-            if (task.type === 'telegram') {
-                // Simulate checking Telegram task completion (replace with actual check logic)
-                const isCompleted = confirm('Are you an admin in the specified Telegram group/channel?');
-                if (isCompleted) {
-                    coinCount += 10; // Reward for Telegram task
-                    localStorage.setItem('abCoin', coinCount);
-                    document.getElementById('coin-counter').innerText = coinCount;
-                    alert('Task completed! You have been rewarded.');
-                    document.getElementById(`start-btn-${task.id}`).textContent = 'Complete';
-                    document.getElementById(`start-btn-${task.id}`).disabled = true;
-                } else {
-                    alert('Task not completed. Please try again.');
-                }
-            } else if (task.type === 'youtube') {
-                const code = prompt('Enter the code you received after watching the video:');
-                if (code === '12345') { // Replace with actual code check logic
-                    coinCount += 5; // Reward for YouTube task
-                    localStorage.setItem('abCoin', coinCount);
-                    document.getElementById('coin-counter').innerText = coinCount;
-                    alert('Task completed! You have been rewarded.');
-                    document.getElementById(`start-btn-${task.id}`).textContent = 'Complete';
-                    document.getElementById(`start-btn-${task.id}`).disabled = true;
-                } else {
-                    alert('Invalid code. Please try again.');
-                }
-            }
-        }
-
-        renderTasks();
+        // Assuming data comes from server-side integration (Node.js)
+        fetch('/user-info')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('profilePic').src = data.photo_url;
+                document.getElementById('userName').innerText = data.name;
+            })
+            .catch(err => console.error('Error fetching user data:', err));
     </script>
 </body>
 </html>
