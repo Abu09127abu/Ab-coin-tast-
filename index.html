@@ -4,40 +4,87 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram User Info</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>AB Coin Task Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .task-item { display: flex; align-items: center; margin: 20px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .task-logo { width: 50px; height: 50px; margin-right: 15px; }
+        .task-name { flex-grow: 1; font-size: 1.2em; }
+        .task-button { padding: 5px 10px; margin-left: 10px; }
+        .counter { font-size: 1.5em; margin-bottom: 20px; }
+    </style>
 </head>
 <body>
-    <h1>Telegram User Information</h1>
-    <div id="user-info">
-        <p id="name">Name: </p>
-        <p id="username">Username: </p>
-        <p id="chat-id">Chat ID: </p>
-        <p id="phone">Phone Number: </p>
-        <p id="premium">Telegram Premium: </p>
-        <p id="name-ab">Name Ends with AB: </p>
-        <p id="join-duration">Account Age: </p>
-        <p id="channels">Joined Channels: </p>
-    </div>
+    <div class="counter">AB Coin: <span id="coin-counter">0</span></div>
+    <div id="task-list"></div>
 
     <script>
-        window.Telegram.WebApp.ready();
-        const user = window.Telegram.WebApp.initDataUnsafe.user;
-        const joinedChannels = window.Telegram.WebApp.initDataUnsafe.joined_channels || [];
-        const accountDurationDays = Math.floor((Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24));
+        // Task data
+        const tasks = [
+            { id: 1, logo: 'task1.png', name: 'Join Telegram Channel', type: 'telegram', url: 'https://t.me/ABcoinairdrop' },
+            { id: 2, logo: 'task2.png', name: 'Watch YouTube Video', type: 'youtube', url: 'https://youtube.com/example_video' }
+        ];
 
-        if (user) {
-            document.getElementById('name').innerText = `Name: ${user.first_name} ${user.last_name || ''}`;
-            document.getElementById('username').innerText = `Username: @${user.username || 'N/A'}`;
-            document.getElementById('chat-id').innerText = `Chat ID: ${user.id}`;
-            document.getElementById('phone').innerText = `Phone Number: ${user.phone_number || 'N/A'}`;
-            document.getElementById('premium').innerText = `Telegram Premium: ${user.is_premium ? 'Yes' : 'No'}`;
-            document.getElementById('name-ab').innerText = `Name Ends with AB: ${user.first_name.endsWith('AB') ? 'Yes' : 'No'}`;
-            document.getElementById('join-duration').innerText = `Account Age: ${accountDurationDays} days`;
-            document.getElementById('channels').innerText = `Joined Channels: ${joinedChannels.length > 0 ? joinedChannels.join(', ') : 'None'}`;
-        } else {
-            document.getElementById('user-info').innerText = 'User information not available.';
+        // Load AB Coin count from local storage
+        let coinCount = localStorage.getItem('abCoin') ? parseInt(localStorage.getItem('abCoin')) : 0;
+        document.getElementById('coin-counter').innerText = coinCount;
+
+        // Function to render tasks
+        function renderTasks() {
+            const taskList = document.getElementById('task-list');
+            tasks.forEach(task => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task-item';
+                taskDiv.innerHTML = `
+                    <img src="${task.logo}" alt="Task Logo" class="task-logo">
+                    <div class="task-name">${task.name}</div>
+                    <button class="task-button" onclick="startTask(${task.id})" id="start-btn-${task.id}">Start</button>
+                `;
+                taskList.appendChild(taskDiv);
+            });
         }
+
+        // Start task function
+        function startTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            window.open(task.url, '_blank');
+            const startButton = document.getElementById(`start-btn-${taskId}`);
+            startButton.textContent = 'Check';
+            startButton.onclick = () => checkTask(task);
+        }
+
+        // Check task function
+        function checkTask(task) {
+            if (task.type === 'telegram') {
+                // Simulate checking Telegram task completion (replace with actual check logic)
+                const isCompleted = confirm('Are you an admin in the specified Telegram group/channel?');
+                if (isCompleted) {
+                    coinCount += 10; // Reward for Telegram task
+                    localStorage.setItem('abCoin', coinCount);
+                    document.getElementById('coin-counter').innerText = coinCount;
+                    alert('Task completed! You have been rewarded.');
+                    document.getElementById(`start-btn-${task.id}`).textContent = 'Complete';
+                    document.getElementById(`start-btn-${task.id}`).disabled = true;
+                } else {
+                    alert('Task not completed. Please try again.');
+                }
+            } else if (task.type === 'youtube') {
+                const code = prompt('Enter the code you received after watching the video:');
+                if (code === '12345') { // Replace with actual code check logic
+                    coinCount += 5; // Reward for YouTube task
+                    localStorage.setItem('abCoin', coinCount);
+                    document.getElementById('coin-counter').innerText = coinCount;
+                    alert('Task completed! You have been rewarded.');
+                    document.getElementById(`start-btn-${task.id}`).textContent = 'Complete';
+                    document.getElementById(`start-btn-${task.id}`).disabled = true;
+                } else {
+                    alert('Invalid code. Please try again.');
+                }
+            }
+        }
+
+        renderTasks();
     </script>
 </body>
 </html>
