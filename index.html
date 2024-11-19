@@ -39,6 +39,14 @@
             font-size: 36px;
             margin-top: 20px;
         }
+        #login-info {
+            font-size: 20px;
+        }
+        #error-message {
+            color: red;
+            font-size: 36px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -47,6 +55,7 @@
         <div id="login-info"></div>
         <button id="click-btn">Click</button>
         <div id="score">Score: 0</div>
+        <div id="error-message"></div>
     </div>
 
     <script type="module">
@@ -69,36 +78,39 @@
         const loginInfo = document.getElementById("login-info");
         const clickBtn = document.getElementById("click-btn");
         const scoreDisplay = document.getElementById("score");
+        const errorMessage = document.getElementById("error-message");
 
         let score = 0;
         let userData = JSON.parse(localStorage.getItem("userData")) || null;
 
-        // Fetch Telegram data
+        // Fetch Telegram data from URL
         const urlParams = new URLSearchParams(window.location.search);
         const telegramData = {
             name: urlParams.get("name"),
             chatId: urlParams.get("chat_id")
         };
 
+        // Check if the user is coming from Telegram
         if (telegramData.name && telegramData.chatId) {
             userData = {
                 name: telegramData.name,
                 chatId: telegramData.chatId
             };
             localStorage.setItem("userData", JSON.stringify(userData));
-        }
 
-        if (userData) {
             loginInfo.innerHTML = `Logged in as: ${userData.name} (${userData.chatId})`;
             loadUserData(userData.chatId);
         } else {
-            loginInfo.innerHTML = "Please log in via Telegram.";
+            errorMessage.textContent = "404 - Not Found. Please log in via Telegram.";
+            clickBtn.disabled = true;  // Disable game actions if not logged in via Telegram
         }
 
         clickBtn.addEventListener("click", () => {
-            score++;
-            scoreDisplay.textContent = `Score: ${score}`;
-            saveScore(userData.chatId, score);
+            if (userData) {
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+                saveScore(userData.chatId, score);
+            }
         });
 
         function loadUserData(chatId) {
