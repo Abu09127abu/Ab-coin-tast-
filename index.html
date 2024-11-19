@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AB Coin Earn</title>
+  <title>User Page - AB Coin</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 0;
       padding: 0;
-      background: linear-gradient(120deg, #green, #lightgreen);
+      background: linear-gradient(120deg, #2c3e50, #4ca1af);
       color: white;
     }
     .container {
@@ -29,20 +29,15 @@
       background-position: center;
       border: 5px solid white;
       cursor: pointer;
-      animation: fadeIn 1s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
     }
     .score {
       margin-top: 20px;
       font-size: 1.5em;
       font-weight: bold;
+    }
+    .user-info {
+      margin-top: 20px;
+      font-size: 1.2em;
     }
   </style>
 </head>
@@ -50,12 +45,14 @@
   <div class="container">
     <div id="coin-button" class="coin-btn"></div>
     <div id="score-display" class="score">Coins: 0</div>
+    <div id="user-info" class="user-info"></div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAaj_RVUSP_NFhtwJociWhJ5WRqgJ_SbTk",
       authDomain: "ab-coin-admin.firebaseapp.com",
@@ -64,24 +61,46 @@
       storageBucket: "ab-coin-admin.appspot.com",
       messagingSenderId: "411970573696",
       appId: "1:411970573696:web:a0a678f8b9a6ae0e601d65",
-      measurementId: "G-79XKRNMV7H",
+      measurementId: "G-79XKRNMV7H"
     };
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase();
+    const db = getDatabase(app);
 
-    let score = 0;
-    const scoreDisplay = document.getElementById("score-display");
-    const coinButton = document.getElementById("coin-button");
+    // Get user details from URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const chatId = params.get('chatId');
+    const name = params.get('name');
+    let userCoins = 0;
 
-    coinButton.addEventListener("click", () => {
-      score++;
-      scoreDisplay.innerText = `Coins: ${score}`;
-      // Save score to Firebase
-      const userId = "example-telegram-id";
-      update(ref(db, `users/${userId}`), { coins: score });
-    });
+    if (chatId && name) {
+      // Display user's real name and chat ID
+      document.getElementById('user-info').innerText = `Name: ${name} | Chat ID: ${chatId}`;
+
+      // Fetch user data from Firebase
+      const userRef = ref(db, 'users/' + chatId);
+      get(userRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          userCoins = snapshot.val().coins;
+          document.getElementById('score-display').innerText = `Coins: ${userCoins}`;
+        } else {
+          // New user, create user data in Firebase
+          update(userRef, { name: name, chatId: chatId, coins: 0 });
+        }
+      });
+
+      // Click handler to earn coins
+      document.getElementById('coin-button').addEventListener('click', () => {
+        userCoins++;
+        document.getElementById('score-display').innerText = `Coins: ${userCoins}`;
+        // Update Firebase with new coin count
+        update(userRef, { coins: userCoins });
+      });
+
+      // Save coins in localStorage
+      localStorage.setItem('coins', userCoins);
+    }
   </script>
 </body>
 </html>
