@@ -39,9 +39,6 @@
             font-size: 36px;
             margin-top: 20px;
         }
-        #login-info {
-            font-size: 20px;
-        }
         #error-message {
             color: red;
             font-size: 36px;
@@ -52,7 +49,6 @@
 <body>
     <div id="game-container">
         <h1>Clicker Game</h1>
-        <div id="login-info"></div>
         <button id="click-btn">Click</button>
         <div id="score">Score: 0</div>
         <div id="error-message"></div>
@@ -75,7 +71,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const loginInfo = document.getElementById("login-info");
         const clickBtn = document.getElementById("click-btn");
         const scoreDisplay = document.getElementById("score");
         const errorMessage = document.getElementById("error-message");
@@ -98,7 +93,8 @@
             };
             localStorage.setItem("userData", JSON.stringify(userData));
 
-            loginInfo.innerHTML = `Logged in as: ${userData.name} (${userData.chatId})`;
+            // Hide the user info in the UI
+            // No user info will be displayed on the page
             loadUserData(userData.chatId);
         } else {
             errorMessage.textContent = "404 - Not Found. Please log in via Telegram.";
