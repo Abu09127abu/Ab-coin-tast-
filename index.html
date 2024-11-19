@@ -1,129 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clicker Game</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background: linear-gradient(to bottom right, #2ecc71, #27ae60);
-            margin: 0;
-        }
-        #game-container {
-            text-align: center;
-            color: white;
-        }
-        #click-btn {
-            width: 100px;
-            height: 100px;
-            background: #16a085;
-            border: none;
-            border-radius: 50%;
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 4px #1abc9c;
-            margin-top: 20px;
-        }
-        #click-btn:active {
-            box-shadow: 0 2px #1abc9c;
-            transform: translateY(2px);
-        }
-        #score {
-            font-size: 36px;
-            margin-top: 20px;
-        }
-        #error-message {
-            color: red;
-            font-size: 36px;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AB Coin Earn</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(120deg, #green, #lightgreen);
+      color: white;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .coin-btn {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background-image: url("https://i.postimg.cc/65k1c33W/Green-Gradient-Minimalist-Simple-Instagram-Profile-Picture-prev-ui.png");
+      background-size: cover;
+      background-position: center;
+      border: 5px solid white;
+      cursor: pointer;
+      animation: fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    .score {
+      margin-top: 20px;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <div id="game-container">
-        <h1>Clicker Game</h1>
-        <button id="click-btn">Click</button>
-        <div id="score">Score: 0</div>
-        <div id="error-message"></div>
-    </div>
+  <div class="container">
+    <div id="coin-button" class="coin-btn"></div>
+    <div id="score-display" class="score">Coins: 0</div>
+  </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, set, update, get, child } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAaj_RVUSP_NFhtwJociWhJ5WRqgJ_SbTk",
-            authDomain: "ab-coin-admin.firebaseapp.com",
-            projectId: "ab-coin-admin",
-            storageBucket: "ab-coin-admin.firebasestorage.app",
-            messagingSenderId: "411970573696",
-            appId: "1:411970573696:web:a0a678f8b9a6ae0e601d65"
-        };
+    const firebaseConfig = {
+      apiKey: "AIzaSyAaj_RVUSP_NFhtwJociWhJ5WRqgJ_SbTk",
+      authDomain: "ab-coin-admin.firebaseapp.com",
+      databaseURL: "https://ab-coin-admin-default-rtdb.firebaseio.com",
+      projectId: "ab-coin-admin",
+      storageBucket: "ab-coin-admin.appspot.com",
+      messagingSenderId: "411970573696",
+      appId: "1:411970573696:web:a0a678f8b9a6ae0e601d65",
+      measurementId: "G-79XKRNMV7H",
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase();
 
-        const clickBtn = document.getElementById("click-btn");
-        const scoreDisplay = document.getElementById("score");
-        const errorMessage = document.getElementById("error-message");
+    let score = 0;
+    const scoreDisplay = document.getElementById("score-display");
+    const coinButton = document.getElementById("coin-button");
 
-        let score = 0;
-        let userData = JSON.parse(localStorage.getItem("userData")) || null;
-
-        // Fetch Telegram data from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const telegramData = {
-            name: urlParams.get("name"),
-            chatId: urlParams.get("chat_id")
-        };
-
-        // Check if the user is coming from Telegram
-        if (telegramData.name && telegramData.chatId) {
-            userData = {
-                name: telegramData.name,
-                chatId: telegramData.chatId
-            };
-            localStorage.setItem("userData", JSON.stringify(userData));
-
-            // Hide the user info in the UI
-            // No user info will be displayed on the page
-            loadUserData(userData.chatId);
-        } else {
-            errorMessage.textContent = "404 - Not Found. Please log in via Telegram.";
-            clickBtn.disabled = true;  // Disable game actions if not logged in via Telegram
-        }
-
-        clickBtn.addEventListener("click", () => {
-            if (userData) {
-                score++;
-                scoreDisplay.textContent = `Score: ${score}`;
-                saveScore(userData.chatId, score);
-            }
-        });
-
-        function loadUserData(chatId) {
-            const userRef = ref(db, `users/${chatId}`);
-            get(userRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    score = data.score || 0;
-                    scoreDisplay.textContent = `Score: ${score}`;
-                }
-            });
-        }
-
-        function saveScore(chatId, newScore) {
-            const userRef = ref(db, `users/${chatId}`);
-            update(userRef, { score: newScore });
-        }
-    </script>
+    coinButton.addEventListener("click", () => {
+      score++;
+      scoreDisplay.innerText = `Coins: ${score}`;
+      // Save score to Firebase
+      const userId = "example-telegram-id";
+      update(ref(db, `users/${userId}`), { coins: score });
+    });
+  </script>
 </body>
 </html>
