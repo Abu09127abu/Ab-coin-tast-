@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Referral System</title>
+</head>
+<body>
+    <div id="app">
+        <h1>AB Coin Referral System</h1>
+        <p>Your Referral Link:</p>
+        <p id="referralLink">Loading...</p>
+
+        <h2>Your Stats</h2>
+        <p>Referral Count: <span id="refCount">0</span></p>
+        <p>AB Coins: <span id="abCoins">0</span></p>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const userId = params.get('user_id');
+        const botName = params.get('bot');
+
+        if (userId && botName) {
+            // Display referral link
+            const referralLink = `https://yourdomain.com?ref=${userId}`;
+            document.getElementById('referralLink').textContent = referralLink;
+
+            // Fetch user stats
+            fetch(`/user-stats?user_id=${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('refCount').textContent = data.refCount || 0;
+                    document.getElementById('abCoins').textContent = data.abCoins || 0;
+                })
+                .catch(() => alert('Failed to load stats.'));
+        } else {
+            alert('Please open the app from the Telegram bot.');
+        }
+    </script>
+</body>
+</html>
