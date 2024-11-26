@@ -3,103 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Page - AB Coin</title>
+  <title>Telegram Mini App Referral</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(120deg, #2c3e50, #4ca1af);
-      color: white;
+      padding: 20px;
     }
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .coin-btn {
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      background-image: url("https://i.postimg.cc/65k1c33W/Green-Gradient-Minimalist-Simple-Instagram-Profile-Picture-prev-ui.png");
-      background-size: cover;
-      background-position: center;
-      border: 5px solid white;
+    #referral-link {
+      margin: 20px 0;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      display: inline-block;
       cursor: pointer;
-    }
-    .score {
-      margin-top: 20px;
-      font-size: 1.5em;
-      font-weight: bold;
-    }
-    .user-info {
-      margin-top: 20px;
-      font-size: 1.2em;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div id="coin-button" class="coin-btn"></div>
-    <div id="score-display" class="score">Coins: 0</div>
-    <div id="user-info" class="user-info"></div>
-  </div>
+  <h1>Welcome to AB Coin Referral Program</h1>
+  <div id="welcome-message"></div>
+  <p>Your unique referral link:</p>
+  <div id="referral-link"></div>
+  <button onclick="copyReferralLink()">Copy Referral Link</button>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  <script>
+    const queryParams = new URLSearchParams(window.location.search);
+    const ref = queryParams.get("ref");
 
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAaj_RVUSP_NFhtwJociWhJ5WRqgJ_SbTk",
-      authDomain: "ab-coin-admin.firebaseapp.com",
-      databaseURL: "https://ab-coin-admin-default-rtdb.firebaseio.com",
-      projectId: "ab-coin-admin",
-      storageBucket: "ab-coin-admin.appspot.com",
-      messagingSenderId: "411970573696",
-      appId: "1:411970573696:web:a0a678f8b9a6ae0e601d65",
-      measurementId: "G-79XKRNMV7H"
-    };
+    // Fetch user data and referral link
+    fetch(`/get-user?ref=${ref || ""}`)
+      .then(response => response.json())
+      .then(data => {
+        const welcomeMessage = document.getElementById("welcome-message");
+        const referralLink = document.getElementById("referral-link");
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // Get user details from URL parameters
-    const params = new URLSearchParams(window.location.search);
-    const chatId = params.get('chatId');
-    const name = params.get('name');
-    let userCoins = 0;
-
-    if (chatId && name) {
-      // Display user's real name and chat ID
-      document.getElementById('user-info').innerText = `Name: ${name} | Chat ID: ${chatId}`;
-
-      // Fetch user data from Firebase
-      const userRef = ref(db, 'users/' + chatId);
-      get(userRef).then((snapshot) => {
-        if (snapshot.exists()) {
-          userCoins = snapshot.val().coins;
-          document.getElementById('score-display').innerText = `Coins: ${userCoins}`;
+        if (data.user) {
+          welcomeMessage.innerText = `Hello, ${data.user.firstName} (${data.user.username})`;
+          referralLink.innerText = `${window.location.origin}?ref=${data.user.telegramId}`;
         } else {
-          // New user, create user data in Firebase
-          update(userRef, { name: name, chatId: chatId, coins: 0 });
+          welcomeMessage.innerText = "Login required.";
         }
       });
 
-      // Click handler to earn coins
-      document.getElementById('coin-button').addEventListener('click', () => {
-        userCoins++;
-        document.getElementById('score-display').innerText = `Coins: ${userCoins}`;
-        // Update Firebase with new coin count
-        update(userRef, { coins: userCoins });
+    function copyReferralLink() {
+      const link = document.getElementById("referral-link").innerText;
+      navigator.clipboard.writeText(link).then(() => {
+        alert("Referral link copied!");
       });
-
-      // Save coins in localStorage
-      localStorage.setItem('coins', userCoins);
     }
   </script>
 </body>
