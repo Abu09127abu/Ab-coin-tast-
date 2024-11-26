@@ -1,91 +1,59 @@
-const express = require('express');
+const express = require("express");
+const bodyParser = require("body-parser");
+const crypto = require("crypto");
+
 const app = express();
-const path = require('path');
-const { initializeApp } = require('firebase/app');
-const { getDatabase, ref, set, get, update } = require('firebase/database');
+app.use(bodyParser.json());
+app.use(express.static("public"));
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAaj_RVUSP_NFhtwJociWhJ5WRqgJ_SbTk",
-  authDomain: "ab-coin-admin.firebaseapp.com",
-  databaseURL: "https://ab-coin-admin-default-rtdb.firebaseio.com",
-  projectId: "ab-coin-admin",
-  storageBucket: "ab-coin-admin.appspot.com",
-  messagingSenderId: "411970573696",
-  appId: "1:411970573696:web:a0a678f8b9a6ae0e601d65",
-  measurementId: "G-79XKRNMV7H",
-};
+// In-memory database
+const users = {};
 
-// Initialize Firebase
-const appFirebase = initializeApp(firebaseConfig);
-const db = getDatabase(appFirebase);
+// Helper function to validate Telegram data
+function validateTelegramAuth(initData) {
+  const initDataObj = Object.fromEntries(new URLSearchParams(initData));
+  const hash = initDataObj.hash;
+  delete initDataObj.hash;
 
-app.use(express.static('public'));
-app.use(express.json());
+  const secretKey = crypto
+    .createHash("sha256")
+    .update("7670487383:AAHahkQTB4XVCwD8oQoWL_GC4tg5FP40IAg", "utf8")
+    .digest();
 
-// Route for User to login with Telegram info
-app.get("/login", (req, res) => {
-  const chatId = req.query.chatId;
-  const name = req.query.name;
+  const checkString = Object.keys(initDataObj)
+    .sort()
+    .map((key) => `${key}=${initDataObj[key]}`)
+    .join("\n");
 
-  if (chatId && name) {
-    const userRef = ref(db, 'users/' + chatId);
-    get(userRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        // User exists, update their information
-        update(userRef, { name: name });
-        res.json({ message: 'User updated', name: snapshot.val().name, coins: snapshot.val().coins });
-      } else {
-        // Create a new user if doesn't exist
-        set(userRef, {
-          name: name,
-          chatId: chatId,
-          coins: 0
-        }).then(() => {
-          res.json({ message: 'User created', name, coins: 0 });
-        }).catch((error) => {
-          res.status(500).send('Error creating user: ' + error);
-        });
-      }
-    }).catch((error) => {
-      res.status(500).send('Error reading from Firebase: ' + error);
-    });
-  } else {
-    res.status(400).send('Chat ID and Name are required');
+  const hmac = crypto.createHmac("sha256", secretKey).update(checkString).digest("hex");
+
+  return hmac === hash ? initDataObj : null;
+}
+
+// Endpoint to authenticate user
+app.get("/get-user", (req, res) => {
+  const ref = req.query.ref || null;
+  const authData = validateTelegramAuth(req.query.initData);
+
+  if (!authData) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
-});
 
-// Route for Admin to get all users
-app.get("/admin/users", (req, res) => {
-  const usersRef = ref(db, 'users');
-  get(usersRef).then((snapshot) => {
-    if (snapshot.exists()) {
-      res.json(snapshot.val());
-    } else {
-      res.json({ message: "No users found" });
+  const { id: telegramId, first_name: firstName, username } = authData;
+
+  // Create or update user
+  if (!users[telegramId]) {
+    users[telegramId] = { telegramId, firstName, username, referrals: [] };
+    if (ref && users[ref]) {
+      users[ref].referrals.push(telegramId); // Add referral
     }
-  }).catch((error) => {
-    res.status(500).send('Error fetching users: ' + error);
-  });
-});
-
-// Route to update coins for a user
-app.post("/admin/updateCoins", (req, res) => {
-  const { chatId, coins } = req.body;
-  if (chatId && coins !== undefined) {
-    const userRef = ref(db, 'users/' + chatId);
-    update(userRef, { coins: coins }).then(() => {
-      res.json({ message: 'Coins updated successfully' });
-    }).catch((error) => {
-      res.status(500).send('Error updating coins: ' + error);
-    });
-  } else {
-    res.status(400).send('Chat ID and coins are required');
   }
+
+  res.json({ user: users[telegramId] });
 });
 
-// Start the server
-const PORT = process.env.PORT || 3000;
+// Start server
+const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
