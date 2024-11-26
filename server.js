@@ -1,59 +1,55 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const crypto = require("crypto");
-
+const express = require('express');
+const fs = require('fs');
 const app = express();
-app.use(bodyParser.json());
-app.use(express.static("public"));
+const PORT = 3000;
 
-// In-memory database
-const users = {};
+// Simulated Database (Replace with Firebase/actual DB)
+let users = {
+    // Example user data
+    '12345': { abCoins: 500, refCount: 2 },
+    '67890': { abCoins: 0, refCount: 0 },
+};
 
-// Helper function to validate Telegram data
-function validateTelegramAuth(initData) {
-  const initDataObj = Object.fromEntries(new URLSearchParams(initData));
-  const hash = initDataObj.hash;
-  delete initDataObj.hash;
+app.use(express.static('public'));
+app.use(express.json());
 
-  const secretKey = crypto
-    .createHash("sha256")
-    .update("7670487383:AAHahkQTB4XVCwD8oQoWL_GC4tg5FP40IAg", "utf8")
-    .digest();
+// Fetch user stats
+app.get('/user-stats', (req, res) => {
+    const { user_id } = req.query;
 
-  const checkString = Object.keys(initDataObj)
-    .sort()
-    .map((key) => `${key}=${initDataObj[key]}`)
-    .join("\n");
-
-  const hmac = crypto.createHmac("sha256", secretKey).update(checkString).digest("hex");
-
-  return hmac === hash ? initDataObj : null;
-}
-
-// Endpoint to authenticate user
-app.get("/get-user", (req, res) => {
-  const ref = req.query.ref || null;
-  const authData = validateTelegramAuth(req.query.initData);
-
-  if (!authData) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  const { id: telegramId, first_name: firstName, username } = authData;
-
-  // Create or update user
-  if (!users[telegramId]) {
-    users[telegramId] = { telegramId, firstName, username, referrals: [] };
-    if (ref && users[ref]) {
-      users[ref].referrals.push(telegramId); // Add referral
+    if (!user_id || !users[user_id]) {
+        return res.json({ refCount: 0, abCoins: 0 });
     }
-  }
 
-  res.json({ user: users[telegramId] });
+    res.json(users[user_id]);
 });
 
-// Start server
-const PORT = 3000;
+// Add new referral
+app.post('/add-referral', (req, res) => {
+    const { ref, newUserId } = req.body;
+
+    if (!ref || !newUserId) {
+        return res.status(400).json({ error: 'Missing parameters' });
+    }
+
+    // Check if referrer exists
+    if (!users[ref]) {
+        users[ref] = { abCoins: 0, refCount: 0 };
+    }
+
+    // Add coins and increment referral count
+    users[ref].abCoins += 1000;
+    users[ref].refCount += 1;
+
+    // Add new user to the database
+    if (!users[newUserId]) {
+        users[newUserId] = { abCoins: 0, refCount: 0 };
+    }
+
+    res.json({ message: 'Referral added successfully', stats: users[ref] });
+});
+
+// Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
