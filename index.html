@@ -4,93 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TON Wallet Connect</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        #ton-connect-button {
-            margin-top: 20px;
-        }
-        #coin-container {
-            display: none;
-            margin-top: 20px;
-        }
-        #wallet-info {
-            display: none;
-            margin-top: 20px;
-        }
-        #coin {
-            width: 120px;
-            height: 120px;
-        }
-        .connect-btn {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .connect-btn:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
     <h1>Connect to TON Wallet</h1>
-
-    <!-- TonConnect Button -->
     <div id="ton-connect-button"></div>
-
-    <!-- Coin and Wallet Info -->
-    <div id="coin-container">
-        <img id="coin" src="coin.png" alt="Coin Image">
-        <p id="abcoin">AB Coin: 0</p>
-    </div>
-
-    <div id="wallet-info">
-        <p><strong>Connected Wallet Address:</strong></p>
-        <p id="wallet-address"></p>
-    </div>
-
-    <!-- Connect Button -->
-    <button class="connect-btn" onclick="connectToWallet()">Connect Wallet</button>
-
-    <!-- TonConnect UI Script -->
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <p id="wallet-address" style="display: none;"></p>
 
     <script>
-        // Initialize TonConnect UI
+        // Initialize TON Connect UI
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://abu09127abu.github.io/Ab-coin-tast-/tonconnect-manifest.json' // Replace with your actual manifest URL
+            manifestUrl: 'https://abu09127abu.github.io/Ab-coin-tast-/tonconnect-manifest.json' // Update with your manifest URL
         });
 
         async function connectToWallet() {
             try {
+                // Request wallet connection
                 const connectedWallet = await tonConnectUI.connectWallet();
-                console.log("Connected wallet:", connectedWallet);
 
-                // Save wallet address in localStorage
-                const walletAddress = connectedWallet.address;
-                localStorage.setItem('walletAddress', walletAddress);
-
-                // Display wallet address and coin info
-                document.getElementById('coin-container').style.display = 'block';
-                document.getElementById('wallet-info').style.display = 'block';
-                document.getElementById('wallet-address').innerText = walletAddress;
-
-                // AB Coin handling (increment example)
-                let abcoinCount = localStorage.getItem('abcoinCount') || 0;
-                abcoinCount = parseInt(abcoinCount) + 10; // Add 10 AB Coins on connection
-                localStorage.setItem('abcoinCount', abcoinCount);
-                document.getElementById('abcoin').innerText = `AB Coin: ${abcoinCount}`;
+                // Display connected wallet address
+                document.getElementById("wallet-address").style.display = "block";
+                document.getElementById("wallet-address").innerText = "Wallet Address: " + connectedWallet.address;
+                console.log("Wallet connected:", connectedWallet);
             } catch (error) {
-                console.error("Error connecting to wallet:", error);
-                alert("Error connecting to wallet. Please try again.");
+                console.error("Connection declined or failed:", error);
+                alert("Connection declined. Please try again.");
             }
         }
+
+        // Attach TON Connect button
+        tonConnectUI.createButton({
+            rootId: "ton-connect-button",
+            onClick: connectToWallet,
+        });
     </script>
 </body>
 </html>
