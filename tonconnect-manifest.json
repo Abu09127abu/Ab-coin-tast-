@@ -1,14 +1,7 @@
 {
-  "version": "0.1.0",
-  "name": "AB Coin Task",
-  "description": "A simple app to connect with TON wallet and manage AB Coins.",
-  "url": "https://abu09127abu.github.io/Ab-coin-tast-/", 
-  "icons": [
-    "https://abu09127abu.github.io/Ab-coin-tast-/coin.png"
-  ],
-  "bridge": "https://bridge.tonapi.io/bridge",
-  "callback": {
-    "url": "https://abu09127abu.github.io/Ab-coin-tast-/callback",
-    "methods": ["post"]
-  }
+    "url": "https://abu09127abu.github.io/Ab-coin-tast-/",  // আপনার হোস্ট করা ওয়েবসাইট URL
+    "name": "AB Coin Task",
+    "iconUrl": "https://abu09127abu.github.io/Ab-coin-tast-/coin.png", // একটি PNG ফাইল (32x32 বা বড়)
+    "termsOfUseUrl": "https://abu09127abu.github.io/terms-of-use",
+    "privacyPolicyUrl": "https://abu09127abu.github.io/privacy-policy"
 }
