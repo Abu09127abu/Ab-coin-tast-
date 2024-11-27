@@ -4,39 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TON Wallet Connect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .connect-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .connect-btn:hover {
+            background-color: #45a049;
+        }
+        #ton-connect-button {
+            margin-top: 20px;
+        }
+    </style>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
     <h1>Connect to TON Wallet</h1>
-    <div id="ton-connect-button"></div>
+
+    <!-- Connect Button -->
+    <button id="connect-btn" class="connect-btn" onclick="connectToWallet()">Connect Wallet</button>
+
+    <!-- Wallet Info -->
     <p id="wallet-address" style="display: none;"></p>
 
     <script>
-        // Initialize TON Connect UI
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://abu09127abu.github.io/Ab-coin-tast-/tonconnect-manifest.json' // Update with your manifest URL
+            manifestUrl: 'https://abu09127abu.github.io/Ab-coin-tast-/tonconnect-manifest.json' // Update with your actual manifest URL
         });
 
         async function connectToWallet() {
             try {
-                // Request wallet connection
+                // Connect to wallet
                 const connectedWallet = await tonConnectUI.connectWallet();
 
-                // Display connected wallet address
-                document.getElementById("wallet-address").style.display = "block";
-                document.getElementById("wallet-address").innerText = "Wallet Address: " + connectedWallet.address;
-                console.log("Wallet connected:", connectedWallet);
+                // Display wallet address
+                const walletAddress = connectedWallet.address;
+                document.getElementById('wallet-address').style.display = "block";
+                document.getElementById('wallet-address').innerText = "Wallet Address: " + walletAddress;
+
+                // Update button text
+                const connectBtn = document.getElementById('connect-btn');
+                connectBtn.innerText = `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-6)}`;
+                connectBtn.style.backgroundColor = "#008CBA";
+                connectBtn.disabled = true;
+
+                console.log("Wallet connected:", walletAddress);
             } catch (error) {
-                console.error("Connection declined or failed:", error);
+                console.error("Error connecting to wallet:", error);
                 alert("Connection declined. Please try again.");
             }
         }
-
-        // Attach TON Connect button
-        tonConnectUI.createButton({
-            rootId: "ton-connect-button",
-            onClick: connectToWallet,
-        });
     </script>
 </body>
 </html>
