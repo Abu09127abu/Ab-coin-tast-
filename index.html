@@ -10,6 +10,21 @@
             text-align: center;
             padding: 20px;
         }
+        #ton-connect-button {
+            margin-top: 20px;
+        }
+        #coin-container {
+            display: none;
+            margin-top: 20px;
+        }
+        #wallet-info {
+            display: none;
+            margin-top: 20px;
+        }
+        #coin {
+            width: 120px;
+            height: 120px;
+        }
         .connect-btn {
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -21,46 +36,70 @@
         .connect-btn:hover {
             background-color: #45a049;
         }
-        #ton-connect-button {
+        a {
+            display: block;
             margin-top: 20px;
+            color: blue;
+            text-decoration: underline;
         }
     </style>
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
     <h1>Connect to TON Wallet</h1>
 
-    <!-- Connect Button -->
-    <button id="connect-btn" class="connect-btn" onclick="connectToWallet()">Connect Wallet</button>
+    <!-- TonConnect Button -->
+    <div id="ton-connect-button"></div>
 
-    <!-- Wallet Info -->
-    <p id="wallet-address" style="display: none;"></p>
+    <!-- Coin and Wallet Info -->
+    <div id="coin-container">
+        <img id="coin" src="coin.png" alt="Coin Image">
+        <p id="abcoin">AB Coin: 0</p>
+    </div>
+
+    <div id="wallet-info">
+        <p><strong>Connected Wallet Address:</strong></p>
+        <p id="wallet-address"></p>
+    </div>
+
+    <!-- Connect Button -->
+    <button class="connect-btn" onclick="connectToWallet()">Connect Wallet</button>
+
+    <!-- TonConnect UI Script -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+
+    <!-- Manifest Link -->
+    <a href="https://abu09127abu.github.io/Ab-coin-tast-/tonconnect-manifest.json" target="_blank">
+        View Manifest File
+    </a>
 
     <script>
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://abu09127abu.github.io/Ab-coin-tast-/tonconnect-manifest.json' // Update with your actual manifest URL
+            manifestUrl: 'https://abu09127abu.github.io/Ab-coin-tast-/tonconnect-manifest.json', // Replace with your manifest URL
+            buttonRootId: 'ton-connect-button'
         });
 
         async function connectToWallet() {
             try {
-                // Connect to wallet
                 const connectedWallet = await tonConnectUI.connectWallet();
+                console.log("Connected wallet:", connectedWallet);
 
-                // Display wallet address
+                // Save wallet address in localStorage
                 const walletAddress = connectedWallet.address;
-                document.getElementById('wallet-address').style.display = "block";
-                document.getElementById('wallet-address').innerText = "Wallet Address: " + walletAddress;
+                localStorage.setItem('walletAddress', walletAddress);
 
-                // Update button text
-                const connectBtn = document.getElementById('connect-btn');
-                connectBtn.innerText = `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-6)}`;
-                connectBtn.style.backgroundColor = "#008CBA";
-                connectBtn.disabled = true;
+                // Display wallet address and coin info
+                document.getElementById('coin-container').style.display = 'block';
+                document.getElementById('wallet-info').style.display = 'block';
+                document.getElementById('wallet-address').innerText = walletAddress;
 
-                console.log("Wallet connected:", walletAddress);
+                // AB Coin handling (increment example)
+                let abcoinCount = localStorage.getItem('abcoinCount') || 0;
+                abcoinCount = parseInt(abcoinCount) + 10; // Add 10 AB Coins on connection
+                localStorage.setItem('abcoinCount', abcoinCount);
+                document.getElementById('abcoin').innerText = `AB Coin: ${abcoinCount}`;
             } catch (error) {
                 console.error("Error connecting to wallet:", error);
-                alert("Connection declined. Please try again.");
+                console.error("Error payload:", error.payload);
             }
         }
     </script>
