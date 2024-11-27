@@ -3,55 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Referral System</title>
-    <script>
-        // Fetch referrer ID from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const referrerId = urlParams.get('ref');
-
-        // Save referrerId in localStorage (Optional)
-        if (referrerId) {
-            localStorage.setItem('referrerId', referrerId);
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TON Wallet Connect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f9f9f9;
         }
-
-        // Display referrer link
-        function displayReflink() {
-            const userId = localStorage.getItem('userId') || "example_user_id";
-            const reflink = `${window.location.origin}?ref=${userId}`;
-            document.getElementById('reflink').innerText = reflink;
+        #coin-container, #wallet-info {
+            display: none;
+            margin-top: 20px;
         }
-
-        window.onload = displayReflink;
-    </script>
+        #coin {
+            width: 120px;
+            height: 120px;
+        }
+        .connect-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .connect-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>AB Coin Referral System</h1>
-    <p>Your Referral Link:</p>
-    <p id="reflink"></p>
+    <h1>Connect to TON Wallet</h1>
 
-    <h3>Sign Up</h3>
-    <form id="signupForm">
-        <label for="username">Username:</label>
-        <input type="text" id="username" required>
-        <button type="submit">Sign Up</button>
-    </form>
+    <!-- TonConnect Button -->
+    <div id="ton-connect-button"></div>
+
+    <!-- Coin Display Section -->
+    <div id="coin-container">
+        <img id="coin" src="coin.png" alt="Coin Image">
+        <p id="abcoin">AB Coin: 0</p>
+    </div>
+
+    <!-- Wallet Information -->
+    <div id="wallet-info">
+        <p><strong>Connected Wallet Address:</strong></p>
+        <p id="wallet-address"></p>
+    </div>
+
+    <!-- Connect Button -->
+    <button class="connect-btn" onclick="connectToWallet()">Connect Wallet</button>
+
+    <!-- TonConnect UI Script -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
     <script>
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const referrerId = localStorage.getItem('referrerId') || null;
-
-            // Send data to server
-            const response = await fetch('/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, referrerId })
-            });
-
-            const result = await response.json();
-            alert(result.message);
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://your-domain.com/tonconnect-manifest.json', // Replace with your manifest URL
+            buttonRootId: 'ton-connect-button'
         });
+
+        async function connectToWallet() {
+            try {
+                const connectedWallet = await tonConnectUI.connectWallet();
+                console.log("Connected wallet:", connectedWallet);
+
+                // Save wallet address in localStorage
+                const walletAddress = connectedWallet.address;
+                localStorage.setItem('walletAddress', walletAddress);
+
+                // Display wallet info and coin
+                document.getElementById('coin-container').style.display = 'block';
+                document.getElementById('wallet-info').style.display = 'block';
+                document.getElementById('wallet-address').innerText = walletAddress;
+
+                // AB Coin handling
+                let abcoinCount = localStorage.getItem('abcoinCount') || 0;
+                abcoinCount = parseInt(abcoinCount) + 10; // Add 10 AB Coins on connection
+                localStorage.setItem('abcoinCount', abcoinCount);
+                document.getElementById('abcoin').innerText = `AB Coin: ${abcoinCount}`;
+            } catch (error) {
+                console.error("Error connecting to wallet:", error);
+                if (error.payload) {
+                    console.error("Connect error payload:", error.payload);
+                }
+                alert("Failed to connect to wallet. Please try again.");
+            }
+        }
     </script>
 </body>
 </html>
