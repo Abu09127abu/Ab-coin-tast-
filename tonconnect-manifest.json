@@ -1,8 +1,14 @@
 {
-    "name": "TON Wallet Connect",
-    "description": "A simple example to connect TON Wallet with TonConnect UI",
-    "url": "https://abu09127abu.github.io/Ab-coin-tast-/",
-    "icons": [
-        "https://i.postimg.cc/wx2HgvLh/Green-Gradient-Minimalist-Simple-Instagram-Profile-Picture-prev-ui-1.png"
-    ]
+  "version": "0.1.0",
+  "name": "AB Coin Task",
+  "description": "A simple app to connect with TON wallet and manage AB Coins.",
+  "url": "https://abu09127abu.github.io/Ab-coin-tast-/", 
+  "icons": [
+    "https://abu09127abu.github.io/Ab-coin-tast-/coin.png"
+  ],
+  "bridge": "https://bridge.tonapi.io/bridge",
+  "callback": {
+    "url": "https://abu09127abu.github.io/Ab-coin-tast-/callback",
+    "methods": ["post"]
+  }
 }
