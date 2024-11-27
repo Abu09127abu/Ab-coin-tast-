@@ -1,7 +1,6 @@
 {
-    "url": "https://abu09127abu.github.io/Ab-coin-tast-/",  // আপনার হোস্ট করা ওয়েবসাইট URL
-    "name": "AB Coin Task",
-    "iconUrl": "https://abu09127abu.github.io/Ab-coin-tast-/coin.png", // একটি PNG ফাইল (32x32 বা বড়)
-    "termsOfUseUrl": "https://abu09127abu.github.io/terms-of-use",
-    "privacyPolicyUrl": "https://abu09127abu.github.io/privacy-policy"
+    "name": "AB Coin",
+    "url": "https://t.me/Abcoinairdropbot/Abcoin",
+    "iconUrl": "https://i.postimg.cc/wx2HgvLh/Green-Gradient-Minimalist-Simple-Instagram-Profile-Picture-prev-ui-1.png",
+    "description": "AB Coin wallet"
 }
