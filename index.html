@@ -1,47 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TonConnect Example</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@latest"></script>
-    <style>
-        #ton-connect {
-            margin-top: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Telegram WebApp Referral</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+      text-align: center;
+    }
+
+    .container {
+      margin-top: 50px;
+    }
+
+    h1 {
+      color: #555;
+    }
+
+    .referral-box {
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+    }
+
+    .referral-box p {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    .referral-link {
+      display: block;
+      background-color: #1e90ff;
+      color: white;
+      padding: 10px 15px;
+      text-decoration: none;
+      border-radius: 5px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    .referral-link:hover {
+      background-color: #006fce;
+    }
+
+    .coin-count {
+      font-size: 22px;
+      font-weight: bold;
+      color: #1e90ff;
+    }
+
+    .user-count {
+      font-size: 18px;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-    <h1>Connect to TonConnect</h1>
-    
-    <!-- TonConnect Button Container -->
-    <div id="ton-connect"></div>
+  <div class="container">
+    <h1>Welcome to AB Coin Referral Program</h1>
+    <div class="referral-box">
+      <p>Your Referral Link:</p>
+      <a href="#" class="referral-link" id="referral-link">Loading...</a>
+      <p class="coin-count">AB Coins: <span id="coin-count">0</span></p>
+      <p class="user-count">Total Referred Users: <span id="user-count">0</span></p>
+    </div>
+  </div>
 
-    <script>
-        const tonConnectUI = new TonConnectUI({
-            manifestUrl: 'https://abu09127abu.github.io/Ab-coin-tast-/tonconnect-manifest.json',
-            buttonRootId: 'ton-connect'
-        });
+  <script>
+    // Function to load Telegram SDK
+    async function loadTelegramSdk() {
+      if (!window.Telegram) {
+        console.error("Telegram WebApp not detected!");
+        return null;
+      }
+      return window.Telegram.WebApp;
+    }
 
-        // Define the transaction
-        const transaction = {
-            messages: [
-                {
-                    address: "UQDv1BTxlFAntDdfq9e7WHr6lgNBg_eoEnyXPuaA8wWhzabn", // Destination address
-                    amount: "20000000" // Amount in nanotons (20,000,000 nanotons = 20 Toncoin)
-                }
-            ]
+    (async () => {
+      const telegramWebApp = await loadTelegramSdk();
+
+      if (telegramWebApp) {
+        // Fetch user data from Telegram
+        const { id, first_name, username, start_param } = telegramWebApp.initDataUnsafe;
+
+        // Update referral link
+        const referralLink = `${window.location.origin}/referral?ref=${username || id}`;
+        document.getElementById('referral-link').setAttribute('href', referralLink);
+        document.getElementById('referral-link').textContent = referralLink;
+
+        // CSRF Token setup
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const headers = {
+          'Content-Type': 'application/json',
         };
 
-        // Send the transaction when the TonConnect UI is initialized
-        tonConnectUI.on('connected', async () => {
-            try {
-                const result = await tonConnectUI.sendTransaction(transaction);
-                console.log('Transaction result:', result);
-            } catch (error) {
-                console.error('Error sending transaction:', error);
-            }
+        if (csrfToken) {
+          headers['X-CSRF-TOKEN'] = csrfToken;
+        }
+
+        // Send referral data to the server
+        const requestBody = {
+          user_id: id,
+          username: username,
+          first_name: first_name,
+          referral_code: start_param, // Referral code from the link
+        };
+
+        const response = await fetch("{{ route('tg.referral') }}", {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(requestBody),
         });
-    </script>
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Update UI with the latest coin and user counts
+          document.getElementById('coin-count').textContent = data.coins || 0;
+          document.getElementById('user-count').textContent = data.referrals || 0;
+
+          console.log(`Welcome ${first_name || username}! Your AB Coins: ${data.coins}`);
+        } else {
+          console.error('Failed to fetch referral data:', data.message);
+        }
+      }
+    })();
+  </script>
 </body>
 </html>
