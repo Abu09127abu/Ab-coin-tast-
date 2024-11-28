@@ -1,17 +1,10 @@
 {
     "name": "AB Coin",
-    "url": "https://t.me/Abcoinairdropbot/Abcoin
-{
-    "name": "AB Coin",
     "description": "Your App Description",
     "url": "https://t.me/Abcoinairdropbot/Abcoin",
     "icons": ["https://i.postimg.cc/wx2HgvLh/Green-Gradient-Minimalist-Simple-Instagram-Profile-Picture-prev-ui-1.png"],
     "bridgeUrl": "https://bridge.tonkeeper.com/bridge",
-    "wallets": [
-        {
+    
+{
             
-            "name": "Tonkeeper",
-            "bridge": "https://bridge.tonkeeper.com/bridge"
-        }
-    ]
-        }
+  
