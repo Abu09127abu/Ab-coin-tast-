@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monetized Ads</title>
+    <title>Unlimited Auto Ads</title>
     <style>
         body {
             background-color: #222222;
@@ -79,18 +79,19 @@
     <div class="alert-bar" id="alert-bar"></div>
 
     <div class="circle" onclick="watchAd()">Click to Watch Ad</div>
-    <button onclick="autoWatchAds()">Auto Watch Ads</button>
+    <button onclick="startAutoAds()">Start Auto Ads</button>
 
     <div class="reward-container">
-        <p class="ads-count">Ads Watched: <span id="ads-count">0</span>/10</p>
+        <p class="ads-count">Ads Watched: <span id="ads-count">0</span></p>
         <div id="reward-code"></div>
     </div>
 
     <script src='//niphaumeenses.net/vignette.min.js' data-zone='8614211' data-sdk='show_8614211'></script>
     <script>
-        const rewardCode = 'ababds121';  // Default reward code
+        const rewardCode = 'abads121';  // Default reward code
         let adsWatched = parseInt(localStorage.getItem('adsWatched')) || 0;
         document.getElementById('ads-count').innerText = adsWatched;
+        let autoAdsRunning = false;
 
         // Function to show the alert bar
         function showAlert(message) {
@@ -120,15 +121,18 @@
             });
         }
 
-        // Function to auto-watch ads
-        function autoWatchAds() {
-            let adsToWatch = 10 - adsWatched;
+        // Function to start auto ads
+        function startAutoAds() {
+            if (autoAdsRunning) {
+                showAlert('Auto Ads are already running!');
+                return;
+            }
 
-            function watchNextAd() {
-                if (adsToWatch <= 0) {
-                    showAlert('You have already watched enough ads!');
-                    return;
-                }
+            autoAdsRunning = true;
+            showAlert('Auto Ads started!');
+
+            function autoAdCycle() {
+                if (!autoAdsRunning) return;
 
                 show_8614211().then(() => {
                     adsWatched++;
@@ -138,15 +142,15 @@
                     if (adsWatched >= 10) {
                         document.getElementById('reward-code').innerHTML = `<p>Your Reward Code: <span class="code">${rewardCode}</span></p>`;
                     }
-                    adsToWatch--;
-                    watchNextAd();
+                    autoAdCycle();  // Run the next ad automatically
                 }).catch((error) => {
                     console.log('Ad failed to load', error);
                     showAlert('Error: Could not load ad');
+                    autoAdCycle();  // Retry on error
                 });
             }
 
-            watchNextAd();
+            autoAdCycle();
         }
     </script>
 </body>
