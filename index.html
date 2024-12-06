@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unlimited Auto Ads</title>
+    <title>Monetized Ads</title>
     <style>
         body {
             background-color: #222222;
@@ -79,10 +79,10 @@
     <div class="alert-bar" id="alert-bar"></div>
 
     <div class="circle" onclick="watchAd()">Click to Watch Ad</div>
-    <button onclick="startAutoAds()">Start Auto Ads</button>
+    <button onclick="autoWatchAds()">Start Auto Ads</button>
 
     <div class="reward-container">
-        <p class="ads-count">Ads Watched: <span id="ads-count">0</span></p>
+        <p class="ads-count">Ads Watched: <span id="ads-count">0</span>/10</p>
         <div id="reward-code"></div>
     </div>
 
@@ -90,8 +90,25 @@
     <script>
         const rewardCode = 'abads121';  // Default reward code
         let adsWatched = parseInt(localStorage.getItem('adsWatched')) || 0;
+        let codeUnlocked = localStorage.getItem('codeUnlocked') === 'true';
+        let lastCodeDate = localStorage.getItem('lastCodeDate');
+        const currentDate = new Date().toISOString().slice(0, 10);  // Get current date (YYYY-MM-DD)
+
+        // Check if the code should still be shown
+        if (lastCodeDate !== currentDate) {
+            localStorage.setItem('adsWatched', 0);  // Reset ad count for a new day
+            localStorage.setItem('codeUnlocked', 'false');  // Reset code availability
+            adsWatched = 0;
+            codeUnlocked = false;
+        }
+
+        // Update UI with current ad count
         document.getElementById('ads-count').innerText = adsWatched;
-        let autoAdsRunning = false;
+
+        // Show the code if it was unlocked
+        if (codeUnlocked) {
+            showRewardCode();
+        }
 
         // Function to show the alert bar
         function showAlert(message) {
@@ -111,8 +128,8 @@
                 localStorage.setItem('adsWatched', adsWatched);
                 document.getElementById('ads-count').innerText = adsWatched;
 
-                if (adsWatched >= 10) {
-                    document.getElementById('reward-code').innerHTML = `<p>Your Reward Code: <span class="code">${rewardCode}</span></p>`;
+                if (!codeUnlocked && adsWatched >= 10) {
+                    unlockRewardCode();
                 }
                 showAlert('Ad watched successfully!');
             }).catch((error) => {
@@ -121,36 +138,39 @@
             });
         }
 
-        // Function to start auto ads
-        function startAutoAds() {
-            if (autoAdsRunning) {
-                showAlert('Auto Ads are already running!');
-                return;
-            }
-
-            autoAdsRunning = true;
-            showAlert('Auto Ads started!');
-
-            function autoAdCycle() {
-                if (!autoAdsRunning) return;
-
+        // Function to auto-watch ads
+        function autoWatchAds() {
+            function watchNextAd() {
                 show_8614211().then(() => {
                     adsWatched++;
                     localStorage.setItem('adsWatched', adsWatched);
                     document.getElementById('ads-count').innerText = adsWatched;
 
-                    if (adsWatched >= 10) {
-                        document.getElementById('reward-code').innerHTML = `<p>Your Reward Code: <span class="code">${rewardCode}</span></p>`;
+                    if (!codeUnlocked && adsWatched >= 10) {
+                        unlockRewardCode();
                     }
-                    autoAdCycle();  // Run the next ad automatically
+
+                    setTimeout(watchNextAd, 2000); // Delay to simulate ads
                 }).catch((error) => {
                     console.log('Ad failed to load', error);
                     showAlert('Error: Could not load ad');
-                    autoAdCycle();  // Retry on error
                 });
             }
 
-            autoAdCycle();
+            watchNextAd();
+        }
+
+        // Function to unlock the reward code
+        function unlockRewardCode() {
+            codeUnlocked = true;
+            localStorage.setItem('codeUnlocked', 'true');
+            localStorage.setItem('lastCodeDate', currentDate);
+            showRewardCode();
+        }
+
+        // Function to display the reward code
+        function showRewardCode() {
+            document.getElementById('reward-code').innerHTML = `<p>Your Reward Code: <span class="code">${rewardCode}</span></p>`;
         }
     </script>
 </body>
