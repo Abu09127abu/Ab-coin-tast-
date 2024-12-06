@@ -101,18 +101,18 @@
     <button class="auto-button" onclick="autoWatchAds()">Auto Watch Ads</button>
 
     <div class="reward-container">
-        <p class="ads-count">Ads Watched: <span id="ads-count">0</span>/5</p>
+        <p class="ads-count">Ads Watched: <span id="ads-count">0</span>/10</p>
         <div id="reward-code"></div>
     </div>
 
     <div id="custom-alert">
-        <span id="alert-message">You have already watched 5 ads today. Please come back after 24 hours.</span>
+        <span id="alert-message">You have already watched 10 ads today. Please come back after 24 hours.</span>
         <button onclick="closeAlert()">Close</button>
     </div>
 
     <script src='//niphaumeenses.net/vignette.min.js' data-zone='8614211' data-sdk='show_8614211'></script>
     <script>
-        const rewardCode = 'ababds121';  // Default reward code
+        const rewardCode = 'abads121;  // Default reward code
 
         // Get the ads watched count and last visited date from localStorage
         let adsWatched = parseInt(localStorage.getItem('adsWatched')) || 0;
@@ -130,8 +130,8 @@
 
         // Function to show ads
         function watchAd() {
-            if (adsWatched >= 5) {
-                showAlert('You have already watched 5 ads today. Please come back after 24 hours.');
+            if (adsWatched >= 10) {
+                showAlert('You have already watched 10 ads today. Please come back after 24 hours.');
                 return;
             }
 
@@ -140,8 +140,8 @@
                 localStorage.setItem('adsWatched', adsWatched);
                 document.getElementById('ads-count').innerText = adsWatched;
 
-                if (adsWatched >= 5) {
-                    // Show the reward code after watching 5 ads
+                if (adsWatched >= 10) {
+                    // Show the reward code after watching 10 ads
                     document.getElementById('reward-code').innerHTML = `<p>Your Reward Code: <span class="code">${rewardCode}</span></p>`;
                 }
             }).catch((error) => {
@@ -152,12 +152,12 @@
 
         // Function to auto-watch ads one after another
         function autoWatchAds() {
-            if (adsWatched >= 5) {
-                showAlert('You have already watched 5 ads today. Please come back after 24 hours.');
+            if (adsWatched >= 10) {
+                showAlert('You have already watched 10 ads today. Please come back after 24 hours.');
                 return;
             }
 
-            let adsToWatch = 5 - adsWatched;
+            let adsToWatch = 10 - adsWatched;
 
             function watchNextAd() {
                 if (adsToWatch <= 0) {
@@ -169,7 +169,7 @@
                     localStorage.setItem('adsWatched', adsWatched);
                     document.getElementById('ads-count').innerText = adsWatched;
 
-                    if (adsWatched >= 5) {
+                    if (adsWatched >= 10) {
                         document.getElementById('reward-code').innerHTML = `<p>Your Reward Code: <span class="code">${rewardCode}</span></p>`;
                     }
 
